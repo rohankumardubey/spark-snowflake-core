@@ -16,7 +16,7 @@
 
 val sparkConnectorVersion = "2.10.1"
 val scalaVersionMajor = "2.12"
-val sparkVersionMajor = "3.2"
+val sparkVersionMajor = "3.3"
 val sparkVersion = s"${sparkVersionMajor}.0"
 val testSparkVersion = sys.props.get("spark.testVersion").getOrElse(sparkVersion)
 
@@ -37,7 +37,7 @@ lazy val root = project.withId("spark-snowflake").in(file("."))
       "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     libraryDependencies ++= Seq(
       "net.snowflake" % "snowflake-ingest-sdk" % "0.10.3",
-      "net.snowflake" % "snowflake-jdbc" % "3.13.14",
+      "net.snowflake" % "snowflake-jdbc" % "3.13.15",
       // "net.snowflake" %% "spark-snowflake" % "2.8.0-spark_3.0",
       // "com.google.guava" % "guava" % "14.0.1" % Test,
       // "org.scalatest" %% "scalatest" % "3.0.5" % Test,

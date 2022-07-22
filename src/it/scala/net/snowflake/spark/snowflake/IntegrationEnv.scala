@@ -21,10 +21,10 @@ import java.io.File
 import java.sql.{Connection, Timestamp}
 import java.time.{LocalDateTime, ZonedDateTime}
 import java.util.TimeZone
-
 import net.snowflake.client.jdbc.internal.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import net.snowflake.spark.snowflake.Parameters.MergedParameters
-import org.apache.log4j.PropertyConfigurator
+import org.apache.log4j.{Level, PropertyConfigurator}
+import org.apache.logging.log4j.spi.LoggerContext
 import org.apache.spark.sql._
 import org.apache.spark.{SparkConf, SparkContext}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite}
@@ -54,10 +54,29 @@ trait IntegrationEnv
 
   protected val DEFAULT_LOG4J_PROPERTY = "src/it/resources/log4j_default.properties"
 
+  // From spark 3.3, log4j2 is used. For spark
+  protected val USE_LOG4J2_PROPERTIES = true
+
   protected def reconfigureLogFile(propertyFileName: String): Unit = {
     // Load the log properties for the security test to output more info
     val log4jfile = new File(propertyFileName)
     PropertyConfigurator.configure(log4jfile.getAbsolutePath)
+  }
+
+  protected def reconfigureLogLevel(levelString: String): Unit = {
+    import org.apache.logging.log4j.LogManager
+    import org.apache.logging.log4j.core.config.LoggerConfig
+    val ctx = LogManager.getContext(false).asInstanceOf[org.apache.logging.log4j.core.LoggerContext]
+    val config = ctx.getConfiguration
+    val loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME)
+    val level = if (levelString == "WARN") {
+      org.apache.logging.log4j.Level.WARN
+    } else {
+      org.apache.logging.log4j.Level.INFO
+    }
+    println(s"reconfigureLogLevel $levelString")
+    loggerConfig.setLevel(level)
+    ctx.updateLoggers() // This causes all Loggers to refetch information from their LoggerConfig.
   }
 
   // Some integration tests are for large Data, it needs long time to run.
